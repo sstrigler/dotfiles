@@ -1,0 +1,36 @@
+[user]
+	name = Stefan Strigler
+	email = stefan@strigler.de
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+	interactive = auto
+[alias]
+	st = status
+	ci = commit
+	co = checkout
+	br = branch
+	subdate = submodule update --recursive --init
+[core]
+	excludesfile = /Users/zeank/.gitignore
+[gui]
+	recentrepo = /Users/zeank/src/bseu
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[push]
+	default = upstream
+[github]
+	user = sstrigler
+	token = putYaOwnApiKeyBrothar
+[filter "media"]
+	clean = git-media-clean %f
+	smudge = git-media-smudge %f
+[credential]
+	helper = osxkeychain
+[init]
+	defaultBranch = main
