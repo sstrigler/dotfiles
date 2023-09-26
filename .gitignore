@@ -1,0 +1,12 @@
+.DS_Store
+.#*
+*.pyc
+*~
+\#*
+TAGS
+.dir-locals.el
+HEAD:*
+*.sublime-*
+*.beam
+.edts
+.markdown-preview.html
