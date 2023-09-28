@@ -34,3 +34,5 @@ export PATH=/usr/local/sbin:/usr/local/bin:$PATH
 #export PATH=$PATH:/usr/local/m-cli
 
 #. /usr/local/erlang/activate
+ulimit -n 1024
+export ERL_AFLAGS="+pc unicode -kernel shell_history enabled"

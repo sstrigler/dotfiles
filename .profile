@@ -27,3 +27,5 @@ export LANG=en_US.UTF-8
 
 #export PATH=$PATH:/usr/local/share/npm/bin
 ulimit -n 1024
+
+export ERL_AFLAGS="+pc unicode -kernel shell_history enabled"
