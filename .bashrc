@@ -28,5 +28,3 @@ if [ "$PS1" ]; then
 
 fi
 
-# added by travis gem
-[ -f /Users/zeank/.travis/travis.sh ] && source /Users/zeank/.travis/travis.sh

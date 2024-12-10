@@ -37,3 +37,4 @@ source $ZSH/oh-my-zsh.sh
 # Customize to your needs...
 #source ~/.aliases
 
+export PATH="$PATH:$HOME/bin"
