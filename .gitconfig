@@ -13,24 +13,8 @@
 	br = branch
 	subdate = submodule update --recursive --init
 [core]
-	excludesfile = /Users/zeank/.gitignore
-[gui]
-	recentrepo = /Users/zeank/src/bseu
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
-[push]
-	default = upstream
-[github]
-	user = sstrigler
-	token = putYaOwnApiKeyBrothar
-[filter "media"]
-	clean = git-media-clean %f
-	smudge = git-media-smudge %f
-[credential]
-	helper = osxkeychain
+	excludesfile = ~/.gitignore
 [init]
 	defaultBranch = main
+[push]
+        default = upstream

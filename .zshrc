@@ -30,17 +30,10 @@ DISABLE_AUTO_UPDATE="true"
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(asdf git docker docker-compose brew brew-cask github node npm osx pip python emacs mix)
+plugins=(asdf git docker docker-compose github node npm pip python emacs mix)
 
 source $ZSH/oh-my-zsh.sh
 
 # Customize to your needs...
 #source ~/.aliases
 
-
-#export PATH="/usr/local/opt/openssl/bin:$PATH"
-
-# added by travis gem
-[ -f /Users/zeank/.travis/travis.sh ] && source /Users/zeank/.travis/travis.sh
-
-. /usr/local/opt/asdf/libexec/asdf.sh
