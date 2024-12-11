@@ -1,6 +1,6 @@
 ;;; core-dumper.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -141,7 +141,7 @@ When universal prefix argument is passed then display the process buffer."
     (message "Cancel running dumping process to start a new one.")
     (spinner-stop)
     (delete-process spacemacs-dump-process))
-  (when-let ((buf (get-buffer spacemacs-dump-buffer-name)))
+  (when-let* ((buf (get-buffer spacemacs-dump-buffer-name)))
     (with-current-buffer buf
       (erase-buffer)))
   (make-directory spacemacs-dump-directory t)

@@ -1,6 +1,6 @@
 ;;; funcs.el --- Shell Layer functions File
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -39,7 +39,9 @@ view; to pop-up a full width buffer, use
 `spacemacs/projectile-shell-pop'."
   (interactive)
   (call-interactively
-   (or (and (eq shell-default-shell 'multi-term) #'projectile-multi-term-in-root)
+   (or (pcase shell-default-shell
+         ('multi-term #'projectile-multi-term-in-root)
+         ('eat #'eat-project))
        (intern-soft (format "projectile-run-%s" shell-default-shell))
        #'projectile-run-shell)))
 
@@ -166,7 +168,6 @@ is achieved by adding the relevant text properties."
 (defun spacemacs//init-eshell ()
   "Stuff to do when enabling eshell."
   (setq pcomplete-cycle-completions nil)
-  (if (bound-and-true-p linum-mode) (linum-mode -1))
   ;; autojump to prompt line if not on one already
   (add-hook 'evil-insert-state-entry-hook
             'spacemacs//eshell-auto-end nil t)
@@ -212,7 +213,7 @@ is achieved by adding the relevant text properties."
   (spacemacs/set-leader-keys-for-major-mode 'eshell-mode
     "H" 'spacemacs/helm-eshell-history)
   (define-key eshell-mode-map
-    (kbd "M-l") 'spacemacs/helm-eshell-history))
+              (kbd "M-l") 'spacemacs/helm-eshell-history))
 
 (defun spacemacs/ivy-eshell-history ()
   (interactive)
@@ -230,6 +231,25 @@ is achieved by adding the relevant text properties."
     "H" #'spacemacs/ivy-eshell-history)
   (define-key eshell-mode-map (kbd "M-l") #'spacemacs/ivy-eshell-history)
   (define-key eshell-mode-map (kbd "<tab>") #'spacemacs/pcomplete-std-complete))
+
+(defun spacemacs/consult-eshell-history ()
+  "Correctly revert to insert state after selection."
+  (interactive)
+  (consult-history)
+  (evil-insert-state))
+
+(defun spacemacs/consult-shell-history ()
+  "Correctly revert to insert state after selection."
+  (interactive)
+  (consult-history)
+  (evil-insert-state))
+
+(defun spacemacs/init-consult-eshell ()
+  "Initialize consult-eshell."
+  (spacemacs/set-leader-keys-for-major-mode 'eshell-mode
+    "H" 'spacemacs/consult-eshell-history)
+  (define-key eshell-mode-map
+              (kbd "M-l") 'spacemacs/consult-eshell-history))
 
 (defun term-send-tab ()
   "Send tab in term mode."
@@ -282,8 +302,8 @@ tries to restore a dead buffer or window."
   (interactive)
   (cl-assert (string-equal mode-name "VTerm") nil "Not in VTerm mode")
   (helm :sources (helm-build-sync-source "Bash history"
-                                         :candidates (spacemacs//vterm-make-history-candidates)
-                                         :action #'vterm-send-string)
+                   :candidates (spacemacs//vterm-make-history-candidates)
+                   :action #'vterm-send-string)
         :buffer "*helm-bash-history*"
         :candidate-number-limit 10000))
 
@@ -306,3 +326,11 @@ tries to restore a dead buffer or window."
     (define-key mode-map (kbd "M-r") 'spacemacs/helm-vterm-search-history))
    ((configuration-layer/layer-used-p 'ivy)
     (define-key mode-map (kbd "M-r") 'spacemacs/counsel-vterm-search-history))))
+
+(defun spacemacs/shell-pop-with-eshell-history-write (orig-fun &rest args)
+  "Make sure that the eshell history is written before the window is closed."
+  (unless (one-window-p)
+    (when (string= shell-pop-internal-mode "eshell")
+      (eshell-write-history)
+      (eshell-write-last-dir-ring)
+      (apply orig-fun args))))

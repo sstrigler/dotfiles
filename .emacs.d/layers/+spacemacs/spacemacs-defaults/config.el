@@ -1,6 +1,6 @@
 ;;; config.el --- Spacemacs Defaults Layer configuration File
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -92,6 +92,13 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Edit
 ;; ---------------------------------------------------------------------------
 
+;; bump of the undo limits to avoid issues with premature
+;; Emacs GC which truncates the undo history very aggressively
+(setq-default
+ undo-limit 80000000
+ undo-strong-limit 120000000
+ undo-outer-limit 360000000)
+
 ;; Start with the *scratch* buffer in text mode (speeds up Emacs load time,
 ;; because it avoids autoloads of elisp modes)
 (setq initial-major-mode 'text-mode)
@@ -130,6 +137,16 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Prompt to open file literally if large file.
 (add-hook 'find-file-hook 'spacemacs/check-large-file)
 
+(spacemacs|defc spacemacs-save-as-visit-action 'ask
+  "The default VISIT argument for interactive usage of
+`spacemacs/save-as' (bound to \\[spacemacs/save-as]), which see.
+Possible values are:
+`ask' to ask every time (the default),
+`:current' to open the file in the current window,
+`:other' to open the file in another window,
+or `nil' to only save and not visit the file."
+  '(choice (const ask) (const :current) (const :other) (const nil)))
+
 ;; ---------------------------------------------------------------------------
 ;; UI
 ;; ---------------------------------------------------------------------------
@@ -139,6 +156,8 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Show column number in mode line
 (setq column-number-mode t)
 
+;; conflicts with "show-smartparens-mode". see the spacemacs-editing layer
+(show-paren-mode -1)
 ;; highlight current line
 (global-hl-line-mode t)
 ;; no blink
@@ -171,6 +190,8 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
     ;; `buffer-predicate' entry doesn't exist, create it
     (push '(buffer-predicate . spacemacs/useful-buffer-p) default-frame-alist)))
 
+(add-to-list 'window-persistent-parameters '(spacemacs-max-state . writable))
+
 ;; ---------------------------------------------------------------------------
 ;; Session
 ;; ---------------------------------------------------------------------------
@@ -198,7 +219,7 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
                         `(".*" ,autosave-dir t) 'append)
            (unless (file-exists-p autosave-dir)
              (make-directory autosave-dir t))))
-  (original (setq auto-save-visited-file-name t))
+  (original (auto-save-visited-mode t))
   (_ (setq auto-save-default nil
            auto-save-list-file-prefix nil)))
 
@@ -232,9 +253,6 @@ It runs `tabulated-list-revert-hook', then calls `tabulated-list-print'."
 ;; Add buffer reference to internal list of killed buffers on `kill-buffer',
 ;; used for restoring recently killed buffers.
 (add-hook 'kill-buffer-hook #'spacemacs//add-buffer-to-killed-list)
-
-;; Don't load outdated compiled files.
-(setq load-prefer-newer t)
 
 ;; Suppress the *Warnings* buffer when native compilation shows warnings.
 (setq native-comp-async-report-warnings-errors 'silent)

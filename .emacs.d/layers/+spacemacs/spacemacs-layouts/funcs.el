@@ -1,6 +1,6 @@
 ;;; funcs.el --- Spacemacs Layouts Layer functions File -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -19,12 +19,6 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-;;
-;; Parts of this file are used with permission under the terms of other
-;; GPL-compatible licenses. Specifically, the functions
-;; `spacemacs//ediff-in-comparison-buffer-p' and
-;; `spacemacs/ediff-balance-windows' are included under the terms of the MIT
-;; license: <https://github.com/roman/golden-ratio.el/blob/master/LICENSE>
 
 
 
@@ -79,18 +73,6 @@ Cancels autosave on exiting perspectives mode."
 (defun spacemacs//layout-not-contains-buffer-p (buffer)
   "Return non-nil if current layout doesn't contain BUFFER."
   (not (persp-contain-buffer-p buffer)))
-
-(defun spacemacs//ediff-in-comparison-buffer-p (&optional buffer)
-  "Return non-nil if BUFFER is part of an ediff comparison."
-  (with-current-buffer (or buffer (current-buffer))
-    (and (boundp 'ediff-this-buffer-ediff-sessions)
-         ediff-this-buffer-ediff-sessions)))
-
-(defun spacemacs/ediff-balance-windows ()
-  "Balance the width of ediff windows."
-  (interactive)
-  (ediff-toggle-split)
-  (ediff-toggle-split))
 
 (defun spacemacs/jump-to-last-layout ()
   "Open the previously selected layout, if it exists."
@@ -408,7 +390,7 @@ If perspective NAME does not already exist, create it and add any
 buffers that belong to the current buffer's project."
   (if (persp-with-name-exists-p name)
       (message "There is already a perspective named %s" name)
-    (if-let ((project (projectile-project-p)))
+    (if-let* ((project (projectile-project-p)))
         (spacemacs||switch-layout name
           :init
           (persp-add-buffer (projectile-project-buffers project)
@@ -952,11 +934,10 @@ FRAME defaults to the current frame."
                                   frame))
 
 (defun spacemacs//fixup-window-configs (orig-fn newname &optional unique)
-  "Update the buffer's name in the eyebrowse window-configs of any perspectives
-containing the buffer."
+  "Update the buffer's name in the eyebrowse window-configs of all perspectives."
   (let* ((old (buffer-name))
          (new (funcall orig-fn newname unique)))
-    (dolist (persp (persp--buffer-in-persps (current-buffer)))
+    (dolist (persp (persp-persps))
       (dolist (window-config
                (append (persp-parameter 'gui-eyebrowse-window-configs persp)
                        (persp-parameter 'term-eyebrowse-window-configs persp)))

@@ -1,6 +1,6 @@
 ;;; packages.el --- Finance Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -21,19 +21,21 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-(setq finance-packages
-  '(
-    company
+(defconst finance-packages
+  '(company
     flycheck
     (flycheck-ledger :requires flycheck)
     ledger-mode
-    (evil-ledger :toggle (memq dotspacemacs-editing-style '(vim hybrid)))
-    ))
+    hledger-mode
+    (evil-ledger :toggle (memq dotspacemacs-editing-style '(vim hybrid)))))
 
 (defun finance/post-init-company ()
   (spacemacs|add-company-backends
     :backends company-capf
-    :modes ledger-mode))
+    :modes ledger-mode)
+  (spacemacs|add-company-backends
+    :backends hledger-company
+    :modes hledger-mode))
 
 (defun finance/post-init-flycheck ()
   (spacemacs/enable-flycheck 'ledger-mode))
@@ -55,38 +57,43 @@
     :mode ("\\.\\(ledger\\|ldg\\)\\'" . ledger-mode)
     :defer t
     :init
-    (progn
-      (setq ledger-post-amount-alignment-column 62)
-      (spacemacs/set-leader-keys-for-major-mode 'ledger-mode
-        "hd" 'ledger-delete-current-transaction
-        "a" 'ledger-add-transaction
-        "b" 'ledger-post-edit-amount
-        "c" 'ledger-toggle-current
-        "C" 'ledger-mode-clean-buffer
-        "l" 'ledger-display-ledger-stats
-        "p" 'ledger-display-balance-at-point
-        "q" 'ledger-post-align-xact
-        "r" 'ledger-reconcile
-        "R" 'ledger-report
-        "t" 'ledger-insert-effective-date)
-      (spacemacs/set-leader-keys-for-major-mode 'ledger-reconcile-mode
-        (or dotspacemacs-major-mode-leader-key ",") 'ledger-reconcile-toggle
-        "RET" 'ledger-reconcile-finish)
-      ;; temporary hack to work-around an issue with evil-define-key
-      ;; more info: https://github.com/emacs-evil/evil/issues/301
-      ;; TODO remove this hack if the limitation is removed upstream
-      (add-hook 'ledger-mode-hook 'evil-normalize-keymaps)
-      (add-hook 'ledger-mode-hook
-                (lambda () (setq-local pcomplete-termination-string "")))
-      ;; global-flycheck-mode is enabled lazily by prog-mode-hook, but
-      ;; ledger-mode derives from text-mode
-      (spacemacs|add-transient-hook ledger-mode-hook
-        (lambda () (when syntax-checking-enable-by-default
-                     (global-flycheck-mode 1)))
-        finance-lazy-load-flycheck)
-      (evilified-state-evilify-map ledger-reconcile-mode-map
-        :eval-after-load ledger-reconcile
-        :mode ledger-reconcile-mode)
-      (evilified-state-evilify-map ledger-report-mode-map
-        :eval-after-load ledger-report
-        :mode ledger-report-mode))))
+    (setq ledger-post-amount-alignment-column 62)
+    (spacemacs/set-leader-keys-for-major-mode 'ledger-mode
+      "hd" 'ledger-delete-current-transaction
+      "a" 'ledger-add-transaction
+      "b" 'ledger-post-edit-amount
+      "c" 'ledger-toggle-current
+      "C" 'ledger-mode-clean-buffer
+      "l" 'ledger-display-ledger-stats
+      "p" 'ledger-display-balance-at-point
+      "q" 'ledger-post-align-xact
+      "r" 'ledger-reconcile
+      "R" 'ledger-report
+      "t" 'ledger-insert-effective-date)
+    (spacemacs/set-leader-keys-for-major-mode 'ledger-reconcile-mode
+      (or dotspacemacs-major-mode-leader-key ",") 'ledger-reconcile-toggle
+      "RET" 'ledger-reconcile-finish)
+    ;; temporary hack to work-around an issue with evil-define-key
+    ;; more info: https://github.com/emacs-evil/evil/issues/301
+    ;; TODO remove this hack if the limitation is removed upstream
+    (add-hook 'ledger-mode-hook 'evil-normalize-keymaps)
+    (add-hook 'ledger-mode-hook
+              (lambda () (setq-local pcomplete-termination-string "")))
+    (evilified-state-evilify-map ledger-reconcile-mode-map
+      :eval-after-load ledger-reconcile
+      :mode ledger-reconcile-mode)
+    (evilified-state-evilify-map ledger-report-mode-map
+      :eval-after-load ledger-report
+      :mode ledger-report-mode)
+    (evil-add-command-properties 'ledger-add-transaction :jump t)
+    (evil-add-command-properties 'ledger-copy-transaction-at-point :jump t)))
+
+(defun finance/init-hledger-mode ()
+  (use-package hledger-mode
+    :mode ("\\.journal\\'" . hledger-mode)
+    :defer t
+    :init
+    (setq hledger-jfile (expand-file-name finance-hledger-journal-file))
+
+    (define-key hledger-mode-map (kbd "<kp-add>") 'hledger-increment-entry-date)
+    (define-key hledger-mode-map (kbd "<kp-subtract>") 'hledger-decrement-entry-date)))

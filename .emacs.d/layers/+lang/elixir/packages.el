@@ -1,6 +1,6 @@
 ;;; packages.el --- Elixir Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -41,13 +41,12 @@
     :if (eq elixir-backend 'alchemist)
     :defer t
     :init
-    (progn
-      (spacemacs/register-repl 'alchemist 'alchemist-iex-run "alchemist")
-      (add-hook 'elixir-mode-hook 'alchemist-mode)
-      (setq alchemist-project-compile-when-needed t
-            alchemist-test-status-modeline nil)
-      (add-to-list 'spacemacs-jump-handlers-elixir-mode
-                   '(alchemist-goto-definition-at-point :async t)))
+    (spacemacs/register-repl 'alchemist 'alchemist-iex-run "alchemist")
+    (add-hook 'elixir-mode-hook 'alchemist-mode)
+    (setq alchemist-project-compile-when-needed t
+          alchemist-test-status-modeline nil)
+    (add-to-list 'spacemacs-jump-handlers-elixir-mode
+                 '(alchemist-goto-definition-at-point :async t))
     :config
     (spacemacs/declare-prefix-for-mode 'elixir-mode "mX" "hex")
     (spacemacs/declare-prefix-for-mode 'elixir-mode "mc" "compile")
@@ -158,8 +157,7 @@
   ;; backend specific
   (add-hook 'elixir-mode-local-vars-hook #'spacemacs//elixir-setup-company))
 
-(defun elixir/post-init-counsel-gtags ()
-  (spacemacs/counsel-gtags-define-keys-for-mode 'elixir-mode))
+(defun elixir/post-init-counsel-gtags nil)
 
 (defun elixir/pre-init-dap-mode ()
   (when (eq elixir-backend 'lsp) (add-to-list 'spacemacs--dap-supported-modes 'elixir-mode))

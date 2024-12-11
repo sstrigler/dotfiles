@@ -1,6 +1,6 @@
 ;;; core-configuration-layer-utest.el --- Spacemacs Unit Test File
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -897,12 +897,6 @@
   (let ((input '(("melpa" . "melpa.org/packages/")))
         (dotspacemacs-elpa-https t))
     (should (equal '(("melpa" . "https://melpa.org/packages/"))
-                   (configuration-layer//resolve-package-archives input)))))
-
-(ert-deftest test-resolve-package-archives--simple-http ()
-  (let ((input '(("melpa" . "melpa.org/packages/")))
-        dotspacemacs-elpa-https)
-    (should (equal '(("melpa" . "http://melpa.org/packages/"))
                    (configuration-layer//resolve-package-archives input)))))
 
 (ert-deftest test-resolve-package-archives--idempotent-when-already-http-prefix ()

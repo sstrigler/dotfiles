@@ -1,6 +1,6 @@
 ;;; funcs.el --- Auctex Layer Functions File for Spacemacs
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -62,16 +62,15 @@
         (progn
           (setf (alist-get 'output-pdf TeX-view-program-selection) '("PDF Tools"))
           (when latex-view-pdf-in-split-window
-            (require 'pdf-sync)
-            (setq pdf-sync-forward-display-action t)))
+            (setq pdf-sync-forward-display-action
+                  '(nil . ((inhibit-same-window . t))))))
       (spacemacs-buffer/warning "Latex Layer: latex-view-with-pdf-tools is non-nil but pdf layer is not installed, this setting will have no effect."))))
 
 (defun latex/build ()
   (interactive)
-  (progn
-    (let ((TeX-save-query nil))
-      (TeX-save-document (TeX-master-file)))
-    (TeX-command latex-build-command 'TeX-master-file -1)))
+  (let ((TeX-save-query nil))
+    (TeX-save-document (TeX-master-file)))
+  (TeX-command latex-build-command 'TeX-master-file -1))
 ;; (setq build-proc (TeX-command latex-build-command 'TeX-master-file -1))
 ;; ;; Sometimes, TeX-command returns nil causing an error in set-process-sentinel
 ;; (when build-proc

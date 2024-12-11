@@ -1,6 +1,6 @@
 ;;; core-funcs.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -30,8 +30,11 @@ values."
 
 (defun spacemacs/system-is-mac ()
   (eq system-type 'darwin))
+
 (defun spacemacs/system-is-linux ()
-  (eq system-type 'gnu/linux))
+  (or  (eq system-type 'gnu/linux)
+       (eq system-type 'android)))
+
 (defun spacemacs/system-is-mswindows ()
   (eq system-type 'windows-nt))
 
@@ -316,36 +319,36 @@ buffer."
   (let ((message-log-max nil))
     (apply 'message msg args)))
 
-(defun spacemacs/derived-mode-p (mode &rest modes)
-  "Non-nil if MODE is derived from one of MODES."
-  ;; We could have copied the built-in `derived-mode-p' and modified it a bit so
-  ;; it works on arbitrary modes instead of only the current major-mode. We
-  ;; don't do that because then we will need to modify the function if
-  ;; `derived-mode-p' changes.
-  (let ((major-mode mode))
-    (apply #'derived-mode-p modes)))
+(define-obsolete-function-alias 'spacemacs/derived-mode-p 'provided-mode-derived-p "2024-06")
 
 (defun spacemacs/alternate-buffer (&optional window)
-  "Switch back and forth between current and last buffer in the
-current window.
+  "Switch back and forth between current and last buffer in WINDOW.
 
-If `spacemacs-layouts-restrict-spc-tab' is `t' then this only switches between
-the current layouts buffers."
+WINDOW defaults to the selected window.
+
+If `spacemacs-layouts-restrict-spc-tab' is non-nil, then this
+only switches between the current layout's buffers."
   (interactive)
   (cl-destructuring-bind (buf start pos)
-      (if (bound-and-true-p spacemacs-layouts-restrict-spc-tab)
-          (let ((buffer-list (persp-buffer-list))
-                (my-buffer (window-buffer window)))
-            ;; find buffer of the same persp in window
-            (seq-find (lambda (it) ;; predicate
-                        (and (not (eq (car it) my-buffer))
-                             (member (car it) buffer-list)))
-                      (window-prev-buffers)
-                      ;; default if found none
-                      (list nil nil nil)))
-        (or (cl-find (window-buffer window) (window-prev-buffers)
-                     :key #'car :test-not #'eq)
-            (list (other-buffer) nil nil)))
+      (let ((my-buffer (window-buffer window))
+            (usefulp (or (symbol-function 'spacemacs/useful-buffer-p) #'always))
+            (predicate #'always)
+            (default (list (other-buffer) nil nil)))
+
+        (when (bound-and-true-p spacemacs-layouts-restrict-spc-tab)
+          (let ((buffer-list (persp-buffer-list)))
+            ;; find buffer of the same persp in window, and don't try
+            ;; `other-buffer'
+            (setq predicate (lambda (buffer) (member buffer buffer-list))
+                  default (list nil nil nil))))
+
+        (seq-find (lambda (it)
+                    (let ((buffer (car it)))
+                      (and (not (eq buffer my-buffer))
+                           (funcall usefulp buffer)
+                           (funcall predicate buffer))))
+                  (window-prev-buffers window)
+                  default))
     (if (not buf)
         (message "Last buffer not found.")
       (set-window-buffer-start-and-point window buf start pos))))

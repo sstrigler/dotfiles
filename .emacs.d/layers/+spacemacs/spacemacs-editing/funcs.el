@@ -1,6 +1,6 @@
 ;;; funcs.el --- Spacemacs editing Layer functions File
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -101,10 +101,9 @@ If `global' is non-nil activate the respective global mode."
         (when smartparens-global-strict-mode
           (smartparens-global-strict-mode -1))
         (smartparens-global-mode -1))
-    (progn
-      (when smartparens-strict-mode
-        (smartparens-strict-mode -1))
-      (smartparens-mode -1))))
+    (when smartparens-strict-mode
+      (smartparens-strict-mode -1))
+    (smartparens-mode -1)))
 
 (defun spacemacs//conditionally-enable-smartparens-mode ()
   "Enable `smartparens-mode' in the minibuffer, during `eval-expression'."
@@ -149,3 +148,43 @@ See issues #6520 and #13172"
     (if arg
         (insert-uuid-cid uuid)
       (insert uuid))))
+
+
+;;; wgrep
+
+(defun spacemacs//grep-set-evil-state ()
+  "Set the evil state for the read-only grep buffer given the current editing style."
+  (if (eq dotspacemacs-editing-style 'emacs)
+      (evil-emacs-state)
+    (evil-motion-state)))
+
+(defun spacemacs/wgrep-finish-edit ()
+  "Set back the default evil state when finishing editing."
+  (interactive)
+  (wgrep-finish-edit)
+  (spacemacs//grep-set-evil-state))
+
+(defun spacemacs/wgrep-abort-changes ()
+  "Set back the default evil state when aborting editing."
+  (interactive)
+  (wgrep-abort-changes)
+  (spacemacs//grep-set-evil-state))
+
+(defun spacemacs/wgrep-abort-changes-and-quit ()
+  "Abort changes and quit."
+  (interactive)
+  (spacemacs/wgrep-abort-changes)
+  (quit-window))
+
+(defun spacemacs/wgrep-save-changes-and-quit ()
+  "Save changes and quit."
+  (interactive)
+  (spacemacs/wgrep-finish-edit)
+  (wgrep-save-all-buffers)
+  (quit-window))
+
+(defun spacemacs/grep-change-to-wgrep-mode ()
+  (interactive)
+  (require 'wgrep)
+  (wgrep-change-to-wgrep-mode)
+  (evil-normal-state))

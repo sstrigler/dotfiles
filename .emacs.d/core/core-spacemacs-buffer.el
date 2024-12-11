@@ -1,6 +1,6 @@
 ;;; core-spacemacs-buffer.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -884,14 +884,14 @@ REAL-WIDTH: the real width of the line.  If the line contains an image, the size
                  :help-echo "Open the Spacemacs GitHub page in your browser."
                  :mouse-face 'highlight
                  :follow-link "\C-m"
-                 "https://develop.spacemacs.org")
+                 "https://spacemacs.org")
   (insert " ")
   (widget-create 'url-link
                  :tag (propertize "Documentation" 'face 'font-lock-keyword-face)
                  :help-echo "Open the Spacemacs documentation in your browser."
                  :mouse-face 'highlight
                  :follow-link "\C-m"
-                 "https://develop.spacemacs.org/doc/DOCUMENTATION.html")
+                 "https://spacemacs.org/doc/DOCUMENTATION.html")
   (insert " ")
   (widget-create 'url-link
                  :tag (propertize "Gitter Chat" 'face 'font-lock-keyword-face)
@@ -1217,7 +1217,12 @@ LIST: list of `org-agenda' entries in the todo list."
                                 (format "- %s -"
                                         (cdr (assoc "time" el)))
                               "-")
-                            (cdr (assoc "text" el)))))
+                            ;; Replace links in org style in todo entries
+                            ;; "[[Link][Name]]" => "[Name]"
+                            (replace-regexp-in-string
+                             "\\[\\[[^][]+\\]\\[\\([^][]+\\)\\]\\]"
+                             "[\\1]"
+                             (cdr (assoc "text" el))))))
               (insert button-prefix)
               (widget-create 'push-button
                              :action `(lambda (&rest ignore)
@@ -1285,8 +1290,8 @@ LIST-SIZE is specified in `dotspacemacs-startup-lists' for recent entries."
   (unless recentf-mode (recentf-mode))
   (let (;; we need to remove `org-agenda-files' entries from recent files
         (agenda-files
-         (when-let ((default-directory
-                      (or (bound-and-true-p org-directory) "~/org"))
+         (when-let* ((default-directory
+                     (or (bound-and-true-p org-directory) "~/org"))
                     (files
                      (when (bound-and-true-p org-agenda-files)
                        (if (listp org-agenda-files)
@@ -1486,7 +1491,7 @@ version of `widget-button-press' since `widget-button-click' doesn't work."
   (when (widget-event-point event)
     (let ((pos (widget-event-point event)))
       (goto-char pos)
-      (when-let ((button (get-char-property pos 'button)))
+      (when-let* ((button (get-char-property pos 'button)))
         (widget-apply-action button)))))
 
 (defun spacemacs-buffer/jump-to-number-startup-list-line ()
@@ -1599,10 +1604,10 @@ If a prefix argument is given, switch to it in an other, possibly new window."
             (force-mode-line-update)
             (spacemacs-buffer-mode)))
         (if save-line
-           (progn (goto-char (point-min))
-                  (forward-line (1- save-line))
-                  (forward-to-indentation 0))
-         (spacemacs-buffer/goto-link-line)))
+            (progn (goto-char (point-min))
+                   (forward-line (1- save-line))
+                   (forward-to-indentation 0))
+          (spacemacs-buffer/goto-link-line)))
       (unless do-not-switch
         (if current-prefix-arg
             (switch-to-buffer-other-window spacemacs-buffer-name))
@@ -1652,7 +1657,7 @@ This function is intended to be used in `spacemacs-buffer-mode' only."
       ;; point on a button, press it
       (widget-button-press (point))
     ;; point on an entry, press it
-    (if-let ((button (save-excursion
+    (if-let* ((button (save-excursion
                        (beginning-of-line-text)
                        (re-search-forward "[0-9]* +. " (point-at-eol) 'noerror))))
         (widget-button-press button)

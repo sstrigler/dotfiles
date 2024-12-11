@@ -1,6 +1,6 @@
 ;;; core-command-line.el --- Spacemacs Core File -*- lexical-binding: t -*-
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -24,9 +24,6 @@
 (defvar spacemacs-force-resume-layouts nil
   "If non-nil force the current emacs instance to resume layouts
   at start time despite the value of `dotspacemacs-auto-resume-layouts'.")
-
-(defvar spacemacs-insecure nil
-  "If non-nil force Spacemacs to operate without secured protocols.")
 
 (defvar spacemacs-sync-packages t
   "If non-nil packages are synchronized when the configuration layer system is
@@ -63,8 +60,6 @@ arguments is that we want to process these arguments as soon as possible."
              (setq spacemacs-debug-timer-threshold next-arg-digit
                    i (1+ 1)))
            (setq spacemacs-debugp t))
-          ("--insecure"
-           (setq spacemacs-insecure t))
           ("--no-layer"
            (setq configuration-layer-exclude-all-layers t))
           ("--distribution"

@@ -1,6 +1,6 @@
 ;;; packages.el --- Octave Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2022 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2024 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -48,5 +48,4 @@
 (defun octave/post-init-ggtags ()
   (add-hook 'octave-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
 
-(defun octave/post-init-counsel-gtags ()
-  (spacemacs/counsel-gtags-define-keys-for-mode 'octave-mode))
+(defun octave/post-init-counsel-gtags nil)
