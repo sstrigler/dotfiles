@@ -39,6 +39,7 @@ RUN tic $HOME/xterm-256color-italic.terminfo
 ENV TERM=xterm-256color-italic
 
 RUN rm -r $HOME/.emacs.d $HOME/.oh-my-zsh
+RUN git config --global advice.detachedHead false;
 RUN git clone https://github.com/syl20bnr/spacemacs $HOME/.emacs.d
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 RUN sed -i 's/plugins=(git)/plugins=(asdf git docker docker-compose github node npm pip python emacs mix)/' .zshrc
