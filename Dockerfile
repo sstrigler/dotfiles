@@ -48,4 +48,4 @@ RUN echo ". $HOME/.asdf/asdf.sh" >> .zshrc
 RUN echo ". $HOME/.asdf/asdf.sh" >> .bashrc
 RUN /usr/bin/emacs-nox --daemon
 
-CMD /bin/bash -cl '/usr/bin/emacs-nox --daemon' && /bin/zsh
+CMD /bin/bash -lc '/usr/bin/emacs-nox --daemon' && /bin/zsh
