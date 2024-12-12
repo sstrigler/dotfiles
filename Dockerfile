@@ -27,4 +27,7 @@ RUN \
     git clone https://github.com/erlang-ls/erlang_ls.git; \
     cd erlang_ls; make && PREFIX=$HOME make install
 
+COPY --chown zeank:zeank .spacemacs .spacemacs
+COPY --chown zeank:zeank .spacemacs.env .spacemacs.env
+
 CMD /bin/bash -lc '/usr/bin/emacs-nox --daemon' && /bin/zsh
