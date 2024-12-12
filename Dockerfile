@@ -1,4 +1,4 @@
-FROM sstrigler/shell
+FROM sstrigler/shell:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Stockholm
@@ -13,13 +13,18 @@ RUN apt-get install -y \
 
 USER zeank
 WORKDIR /home/zeank
+ENV HOME=/home/zeank
+# Add asdf to PATH, so it can be run in this Dockerfile
+ENV PATH="$PATH:$HOME/.asdf/bin"
 
-SHELL ["/bin/bash", "-lc"]
-RUN asdf plugin add erlang
-RUN asdf plugin add rebar
-RUN asdf plugin add elixir
-
-RUN asdf install
+# Add asdf shims to PATH, so installed executables can be run in this Dockerfile
+ENV PATH=$PATH:$HOME/.asdf/shims
+RUN echo $PATH
+RUN \
+    asdf plugin add erlang; \
+    asdf plugin add rebar; \
+    asdf plugin add elixir; \
+    asdf install
 
 RUN \
     # configure git to get rid of detached head warnings
@@ -30,4 +35,4 @@ RUN \
 COPY --chown=zeank:zeank .spacemacs .spacemacs
 COPY --chown=zeank:zeank .spacemacs.env .spacemacs.env
 
-CMD /bin/bash -lc '/usr/bin/emacs-nox --daemon' && /bin/zsh
+CMD PATH=$PATH:/home/zeank/bin:/home/zeank/.asdf/bin:/home/zeank/.asdf/shims /usr/bin/emacs-nox --daemon && /bin/zsh
